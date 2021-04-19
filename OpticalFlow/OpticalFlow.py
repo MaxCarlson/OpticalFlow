@@ -18,24 +18,59 @@ class OpticalFlow:
     dogx = np.array([[1, 0, -1],[2, 0, -2],[1, 0, -1]])
     dogy = np.array([[1, 2, 1],[0,0,0],[-1,-2,-1]])
 
-    def __init__(self, images, dims=images[0].shape):
+    def __init__(self, images):
         self.images     = images
-        self.dtemporal  = images[1] - images[0] 
+        self.images[0]  = np.pad(self.images[0], 1)
+        self.dtemporal  = np.pad(images[1], 1) - images[0] 
 
     def applyFilter(self, filter, padding):
         im = self.images[0]
-        im = np.pad(im, 1)
         sz = im.shape
+        fz = filter.shape[0]
+        out = np.zeros(self.images[1].shape)
+
         for i in range(0, sz[0] - padding * 2):
             for j in range(0, sz[1] - padding * 2):
                 z = np.multiply(filter, im[i:i+fz, j:j+fz])
                 out[i][j] = np.sum(z)
+        return out
 
 
     def run(self):
         # Calculate DoGx and DoGy for each pixel
-        Ix = self.applyFilter(dogx, 1)
-        Iy = self.applyFilter(dogy, 1)
+        Ix = self.applyFilter(self.dogx, 1)
+        Iy = self.applyFilter(self.dogy, 1)
+        Ix = np.pad(Ix, 1)
+        Iy = np.pad(Iy, 1)
+
+        #A = np.zeros((self.images[1].shape + (9, 2, )))
+        #b = np.zeros((self.images[1].shape + (9, )))
+        V = np.zeros((self.images[1].shape + (2,)))
+
+        for i in range(self.images[1].shape[0]):
+            for j in range(self.images[1].shape[1]):
+                # Build the DoGx and DoGy matricies for each pixel
+                xs = np.reshape(Ix[i:i+3, j:j+3], (9))
+                ys = np.reshape(Iy[i:i+3, j:j+3], (9))
+                a = np.transpose(np.stack([xs, ys]))
+                #A[i, j] = a
+
+                # as well as the temporal b term
+                b = -np.reshape(self.dtemporal[i:i+3, j:j+3], (9))
+
+                ata = np.matmul(np.transpose(a), a)
+                atb = np.matmul(np.transpose(a), b)
+                r = np.matmul(np.linalg.inv(ata), atb)
+
+                V[i, j] = r
+
+
+        V2 = [np.sqrt(np.square(v[0]) + np.square(v[0])) for v in V.flatten()]
+        a=5
+        
+
+
+
 
 
 
