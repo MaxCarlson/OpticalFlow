@@ -43,8 +43,6 @@ class OpticalFlow:
         Ix = np.pad(Ix, 1)
         Iy = np.pad(Iy, 1)
 
-        #A = np.zeros((self.images[1].shape + (9, 2, )))
-        #b = np.zeros((self.images[1].shape + (9, )))
         V = np.zeros((self.images[1].shape + (2,)))
 
         for i in range(self.images[1].shape[0]):
@@ -53,19 +51,33 @@ class OpticalFlow:
                 xs = np.reshape(Ix[i:i+3, j:j+3], (9))
                 ys = np.reshape(Iy[i:i+3, j:j+3], (9))
                 a = np.transpose(np.stack([xs, ys]))
-                #A[i, j] = a
 
                 # as well as the temporal b term
                 b = -np.reshape(self.dtemporal[i:i+3, j:j+3], (9))
 
                 ata = np.matmul(np.transpose(a), a)
                 atb = np.matmul(np.transpose(a), b)
-                r = np.matmul(np.linalg.inv(ata), atb)
+                try:
+                    r = np.matmul(np.linalg.inv(ata), atb)
+                except:
+                    r = np.matmul(np.linalg.pinv(ata), atb)
 
                 V[i, j] = r
 
+        Vx = V[:,:,0]
+        Vy = V[:,:,1]
 
-        V2 = [np.sqrt(np.square(v[0]) + np.square(v[0])) for v in V.flatten()]
+        V2 = [np.sqrt(np.square(v[0]) + np.square(v[1])) 
+              for v in np.reshape(V, (V.shape[0] * V.shape[1], 2))]
+        V2 = np.reshape(V2, self.images[1].shape)
+
+        vxImg = Image.fromarray(Vx)
+        vyImg = Image.fromarray(Vy)
+        v2Img = Image.fromarray(V2)
+        
+        vxImg.show()
+        vyImg.show()
+        v2Img.show()
         a=5
         
 
