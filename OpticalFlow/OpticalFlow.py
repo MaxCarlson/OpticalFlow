@@ -1,5 +1,6 @@
 from PIL import Image
 import numpy as np
+import matplotlib.pyplot as plt
 
 f1a = Image.open('frame1_a.png')
 f2a = Image.open('frame2_a.png')
@@ -20,6 +21,9 @@ class OpticalFlow:
 
     def __init__(self, images):
         self.images     = images
+        self.images[0] = np.asarray(self.images[0], dtype=int)
+        self.images[1] = np.asarray(self.images[1], dtype=int)
+
         self.images[0]  = np.pad(self.images[0], 1)
         self.dtemporal  = np.pad(images[1], 1) - images[0] 
 
@@ -57,6 +61,8 @@ class OpticalFlow:
 
                 ata = np.matmul(np.transpose(a), a)
                 atb = np.matmul(np.transpose(a), b)
+
+                #r = np.matmul(np.linalg.inv(ata), atb)
                 try:
                     r = np.matmul(np.linalg.inv(ata), atb)
                 except:
@@ -70,6 +76,9 @@ class OpticalFlow:
         V2 = [np.sqrt(np.square(v[0]) + np.square(v[1])) 
               for v in np.reshape(V, (V.shape[0] * V.shape[1], 2))]
         V2 = np.reshape(V2, self.images[1].shape)
+
+        plt.imshow(V2)
+        plt.show()
 
         vxImg = Image.fromarray(Vx)
         vyImg = Image.fromarray(Vy)
