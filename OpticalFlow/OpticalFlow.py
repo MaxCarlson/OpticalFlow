@@ -3,15 +3,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 f1a = Image.open('frame1_a.png')
-f2a = Image.open('frame2_a.png')
-
 f1b = Image.open('frame1_b.png')
+
+f2a = Image.open('frame2_a.png')
 f2b = Image.open('frame2_b.png')
 
 f1a = np.asarray(f1a)
-f2a = np.asarray(f2a)
-
 f1b = np.asarray(f1b)
+
+f2a = np.asarray(f2a)
 f2b = np.asarray(f2b)
 
 
@@ -97,7 +97,6 @@ class OpticalFlow:
 
 
 
-of = OpticalFlow([f1a, f2a])
-
+of = OpticalFlow([f1a, f1b])
 #of = OpticalFlow([f1b, f2b])
 of.run()
