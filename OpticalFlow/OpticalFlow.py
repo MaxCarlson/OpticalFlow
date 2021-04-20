@@ -44,6 +44,10 @@ class OpticalFlow:
         # Calculate DoGx and DoGy for each pixel
         Ix = self.applyFilter(self.dogx, 1)
         Iy = self.applyFilter(self.dogy, 1)
+        
+        #plt.imshow(self.dtemporal)
+        #plt.show()
+
         Ix = np.pad(Ix, 1)
         Iy = np.pad(Iy, 1)
 
@@ -73,20 +77,19 @@ class OpticalFlow:
         Vx = V[:,:,0]
         Vy = V[:,:,1]
 
-        V2 = [np.sqrt(np.square(v[0]) + np.square(v[1])) 
-              for v in np.reshape(V, (V.shape[0] * V.shape[1], 2))]
-        V2 = np.reshape(V2, self.images[1].shape)
+        V2 = np.linalg.norm(V, ord=2, axis=2)
 
-        plt.imshow(V2)
+        plt.imshow(V2, cmap='seismic')
+        #plt.imshow(Vy)
+        #plt.imshow(V2)
         plt.show()
 
-        vxImg = Image.fromarray(Vx)
-        vyImg = Image.fromarray(Vy)
-        v2Img = Image.fromarray(V2)
-        
-        vxImg.show()
-        vyImg.show()
-        v2Img.show()
+        #vxImg = Image.fromarray(Vx)
+        #vyImg = Image.fromarray(Vy)
+        #v2Img = Image.fromarray(V2)
+        #vxImg.show()
+        #vyImg.show()
+        #v2Img.show()
         a=5
         
 
